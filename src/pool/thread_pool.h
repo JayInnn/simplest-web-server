@@ -39,7 +39,7 @@ class thread_pool {
 private:
     class join_threads {
     private:
-        std::vector<std::thread> threads_;
+        std::vector<std::thread> &threads_;
     
     public:
         explicit join_threads(std::vector<std::thread>& th): threads_(th) {}
@@ -90,7 +90,7 @@ public:
 
     template<typename FunctionType>
     void submit(FunctionType f) {
-        work_queue.push(std::function<void>(f));
+        work_queue.push(std::function<void()>(f));
     }
     
 };
