@@ -1,18 +1,17 @@
-# 打印当前目录
-message("源程序工程当前目录: "  ${CMAKE_CURRENT_SOURCE_DIR})
- 
-# 头文件目录
+# debug
+MESSAGE("src compile, path: "  ${CMAKE_CURRENT_SOURCE_DIR})
+
 INCLUDE_DIRECTORIES(
-    ${CMAKE_CURRENT_SOURCE_DIR}/pool/
+    ${CMAKE_CURRENT_SOURCE_DIR}/pool
 )
- 
+
 FILE(GLOB_RECURSE SRC_POOL "pool/*.cc")
 FILE(GLOB_RECURSE SRC_SERVER "server/*.cc")
 
+FIND_PACKAGE(Threads)
 
 ADD_LIBRARY(src ${SRC_POOL} ${SRC_SERVER})
 
+ADD_EXECUTABLE(src_bin ${SRC_POOL} ${SRC_SERVER})
 
-ADD_EXECUTABLE(src_sult ${SRC_POOL} ${SRC_SERVER})
-
-TARGET_LINK_LIBRARIES(src_sult pthread)
+TARGET_LINK_LIBRARIES(src_bin ${CMAKE_THREAD_LIBS_INIT})
