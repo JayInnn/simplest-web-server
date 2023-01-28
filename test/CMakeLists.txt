@@ -3,10 +3,11 @@ message("pwd: "  ${CMAKE_CURRENT_SOURCE_DIR})
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/../third/googletest-release-1.12.1/googletest/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/pool
 )
 
 LINK_DIRECTORIES(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../third/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/../lib
 )
 
 find_package(Threads)
