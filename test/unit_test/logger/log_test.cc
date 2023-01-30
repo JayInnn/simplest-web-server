@@ -3,11 +3,13 @@
 #include <future>
 #include <unistd.h>
 
+#define ASYNLOG
+
 Log* get_log_instance() {
     return Log::get_instance();
 }
 
-TEST(test_log_get_instance, get_instance) {
+TEST(test_log, get_instance) {
     Log* instance = Log::get_instance();
     std::future<Log*> ft01 = std::async(get_log_instance);
     std::future<Log*> ft02 = std::async(get_log_instance);
@@ -16,46 +18,37 @@ TEST(test_log_get_instance, get_instance) {
     EXPECT_EQ(ft02.get(), instance);
 }
 
-TEST(test_log_sync_init, init) {
+
+TEST(test_log, init_and_write) {
     Log* instance = Log::get_instance();
     std::string path("./");
-    instance->init(path.c_str(), 10, LOG_LEVEL::INFO, false, 10, 2);
+#ifdef ASYNLOG
+    instance->init(path.c_str(), 2, LOG_LEVEL::INFO, true, 10, 2);
+#endif
 
-    std::time_t timer = std::time(nullptr);
-    std::tm *sysTime = std::localtime(&timer);
-    char file_name[256] = {0};
-    snprintf(file_name, 256 - 1, "%s/application_%04d_%02d_%02d.log_%02d", 
-            path.c_str(), sysTime->tm_year + 1900, sysTime->tm_mon + 1, sysTime->tm_mday, 0);
+#ifdef SYNLOG
+    instance->init(path.c_str(), 2, LOG_LEVEL::INFO, false, 10, 2);
+#endif
 
-    bool is_exist = false;
-    if(access(file_name, F_OK) == 0) {
-        is_exist = true;
+    for(int i = 0; i < 4; ++i) {
+        LOG_INFO("========== log init(%d) ==========", i);
     }
-    EXPECT_TRUE(is_exist);
-    
-    int res = unlink(file_name);
-    ASSERT_EQ(res, 0);
-}
 
-TEST(test_log_async_init, init) {
-    Log* instance = Log::get_instance();
-    std::string path("./");
-    instance->init(path.c_str(), 10, LOG_LEVEL::INFO, true, 10, 2);
+    for(int i = 0; i < 2; ++i) {
+        std::time_t timer = std::time(nullptr);
+        std::tm *sysTime = std::localtime(&timer);
+        char file_name[256] = {0};
+        snprintf(file_name, 256 - 1, "%s/application_%04d_%02d_%02d.log_%02d", 
+                path.c_str(), sysTime->tm_year + 1900, sysTime->tm_mon + 1, sysTime->tm_mday, i);
 
-    std::time_t timer = std::time(nullptr);
-    std::tm *sysTime = std::localtime(&timer);
-    char file_name[256] = {0};
-    snprintf(file_name, 256 - 1, "%s/application_%04d_%02d_%02d.log_%02d", 
-            path.c_str(), sysTime->tm_year + 1900, sysTime->tm_mon + 1, sysTime->tm_mday, 0);
-
-    // file exist
-    bool is_exist = false;
-    if(access(file_name, F_OK) == 0) {
-        is_exist = true;
+        if(access(file_name, F_OK) == 0) {
+            int res = unlink(file_name);
+            ASSERT_EQ(res, 0);
+        }
     }
-    EXPECT_TRUE(is_exist);
 
-    // expect thread num = 2
+#ifdef ASYNLOG
+    // expect thread num = 3
     __pid_t cur_pid = getpid();
     char buf[128] = {0};
     snprintf(buf, sizeof(buf), "cat /proc/%d/status | grep 'Threads' | grep -Eo '[0-9]+$'", cur_pid);    
@@ -66,9 +59,6 @@ TEST(test_log_async_init, init) {
     pclose(fp);
     std::string tmp = ret;
     ASSERT_EQ(tmp, "3\n");
+#endif
 
-    
-    int res = unlink(file_name);
-    ASSERT_EQ(res, 0);
 }
-

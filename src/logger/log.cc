@@ -13,7 +13,7 @@ Log::Log() {
 }
 
 Log::~Log() {
-    if(async_flag) {
+    if(async_flag || (!log_write_thread_vec.empty())) {
         log_block_queue->stop();
         for(unsigned i = 0; i < log_write_thread_vec.size(); ++i) {
             if(log_write_thread_vec[i].joinable()) {
@@ -106,7 +106,7 @@ void Log::write(LOG_LEVEL level, const char *format, ...) {
             cur_row = 0;
             cur_day_file_total = 0;
             char file_name[LOG_NAME_LEN] = {0};
-            snprintf(file_name, LOG_NAME_LEN - 1, "%s/%04d_%02d_%02d.log_%02d", 
+            snprintf(file_name, LOG_NAME_LEN - 1, "%s/application_%04d_%02d_%02d.log_%02d", 
                 dir_name, sysTime->tm_year + 1900, sysTime->tm_mon + 1, sysTime->tm_mday, cur_day_file_total);
 
             fflush(_fp);
@@ -118,11 +118,11 @@ void Log::write(LOG_LEVEL level, const char *format, ...) {
     // 按照行数分片
     {
         std::lock_guard<std::mutex> locker(_mutex);
-        if(cur_row > max_row_per_file) {
+        if(cur_row >= max_row_per_file) {
             cur_row = 0;
             cur_day_file_total++;
             char file_name[LOG_NAME_LEN] = {0};
-            snprintf(file_name, LOG_NAME_LEN - 1, "%s/%04d_%02d_%02d.log_%02d", 
+            snprintf(file_name, LOG_NAME_LEN - 1, "%s/application_%04d_%02d_%02d.log_%02d", 
                 dir_name, sysTime->tm_year + 1900, sysTime->tm_mon + 1, sysTime->tm_mday, cur_day_file_total);
 
             fflush(_fp);
