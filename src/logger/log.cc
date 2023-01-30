@@ -54,7 +54,7 @@ void Log::init(const char* path, int max_row, LOG_LEVEL level,
     std::time_t timer = std::time(nullptr);
     std::tm *sysTime = std::localtime(&timer);
     char file_name[LOG_NAME_LEN] = {0};
-    snprintf(file_name, LOG_NAME_LEN - 1, "%s/%04d_%02d_%02d.log_%02d", 
+    snprintf(file_name, LOG_NAME_LEN - 1, "%s/application_%04d_%02d_%02d.log_%02d", 
             path, sysTime->tm_year + 1900, sysTime->tm_mon + 1, sysTime->tm_mday, cur_day_file_total);
     cur_today = sysTime->tm_mday;
     {

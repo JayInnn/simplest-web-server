@@ -4,6 +4,7 @@ MESSAGE("test compile, path: "  ${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(
     ${ROOT_CMAKE_PATH}/third/googletest-release-1.12.1/googletest/include
     ${ROOT_CMAKE_PATH}/src/pool
+    ${ROOT_CMAKE_PATH}/src/logger
 )
 
 LINK_DIRECTORIES(

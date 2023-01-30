@@ -69,6 +69,9 @@ public:
      */
     void stop() {
         destroy_flag.store(true);
+        // 停止时可能存在线程wait，需要唤醒
+        cond_consumer.notify_all();
+        cond_producer.notify_all();
     }
 
     /**
