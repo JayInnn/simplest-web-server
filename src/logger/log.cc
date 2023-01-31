@@ -152,6 +152,7 @@ void Log::write(LOG_LEVEL level, const char *format, ...) {
             log_block_queue->push(line_str);
         } else {
             fputs(line_str.c_str(), _fp);
+            fflush(_fp);
             cur_row++;
         }
         va_end(valst);
@@ -166,6 +167,7 @@ void Log::async_flush() {
         if(log_block_queue->pop(str)) {
             std::lock_guard<std::mutex> locker(_mutex);
             fputs(str.c_str(), _fp);
+            fflush(_fp);
             cur_row++;
         }
     }
