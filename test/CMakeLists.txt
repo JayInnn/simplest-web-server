@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(
     ${ROOT_CMAKE_PATH}/third/googletest-release-1.12.1/googletest/include
     ${ROOT_CMAKE_PATH}/src/pool
     ${ROOT_CMAKE_PATH}/src/logger
+    ${ROOT_CMAKE_PATH}/src/timer
 )
 
 LINK_DIRECTORIES(
@@ -15,7 +16,8 @@ FIND_PACKAGE(Threads)
 
 FILE(GLOB_RECURSE POOL_TEST_SRC_LIST "unit_test/pool/*.cc")
 FILE(GLOB_RECURSE LOGGER_TEST_SRC_LIST "unit_test/logger/*.cc")
+FILE(GLOB_RECURSE TIMER_TEST_SRC_LIST "unit_test/timer/*.cc")
 
-ADD_EXECUTABLE(test_bin ${POOL_TEST_SRC_LIST} ${LOGGER_TEST_SRC_LIST})
+ADD_EXECUTABLE(test_bin ${POOL_TEST_SRC_LIST} ${LOGGER_TEST_SRC_LIST} ${TIMER_TEST_SRC_LIST})
 
 TARGET_LINK_LIBRARIES(test_bin gtest gtest_main libsrc.a ${CMAKE_THREAD_LIBS_INIT})
