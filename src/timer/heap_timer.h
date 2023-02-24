@@ -107,6 +107,16 @@ public:
         }
     }
 
+    size_t get_next_tick() {
+        tick();
+        size_t res = -1;
+        if(!heap_.empty()) {
+            res = std::chrono::duration_cast<chrono_ms>(heap_.front().expires - high_clock::now()).count();
+            if(res < 0) { res = 0; }
+        }
+        return res;
+    }
+
     void clear() {
         ref_.clear();
         heap_.clear();

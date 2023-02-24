@@ -66,7 +66,7 @@ private:
 };
 
 
-
+//TODO: 输出日志新增行号
 #define LOG_DEBUG(format, ...) Log::get_instance()->write(LOG_LEVEL::DEBUG, format, ##__VA_ARGS__)
 #define LOG_INFO(format, ...) Log::get_instance()->write(LOG_LEVEL::INFO, format, ##__VA_ARGS__)
 #define LOG_WARN(format, ...) Log::get_instance()->write(LOG_LEVEL::WARN, format, ##__VA_ARGS__)

@@ -69,7 +69,7 @@ private:
     }
 
 public:
-    thread_pool(unsigned capacity): done(false), joins(threads) {
+    thread_pool(unsigned capacity = 8): done(false), joins(threads) {
         unsigned count = std::thread::hardware_concurrency();
         if(capacity > count) {
             throw std::out_of_range("thread pool init capacity over hardware count");
@@ -90,7 +90,7 @@ public:
 
     template<typename FunctionType>
     void submit(FunctionType f) {
-        work_queue.push(std::function<void()>(f));
+        work_queue.push(std::forward<FunctionType>(f));
     }
     
 };
