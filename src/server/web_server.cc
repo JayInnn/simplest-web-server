@@ -40,10 +40,13 @@ void web_server::start() {
             if(fd == sock_fd) {
                 deal_listen(fd);
             } else if(event & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
+                assert(users_.count(fd) > 0);
                 deal_close(fd);
             } else if(event & EPOLLIN) {
+                assert(users_.count(fd) > 0);
                 deal_read(fd);
             } else if(event & EPOLLOUT) {
+                assert(users_.count(fd) > 0);
                 deal_write(fd);
             } else {
                 LOG_ERROR("unexpected event!!!");
@@ -52,16 +55,9 @@ void web_server::start() {
     }
 }
 
-void web_server::check_user_exist(int fd) {
-    if(users_.count(fd) == 0) {
-        LOG_ERROR("check user exist, fd(%d) has no users.", fd);
-        users_.erase(fd);
-    }
-}
-
 void web_server::init_socket() {
     assert(options.port < 65535 && options.port > 1024);
-    int sock_fd = socket(PF_INET, SOCK_STREAM, 0);
+    sock_fd = socket(PF_INET, SOCK_STREAM, 0);
     assert(sock_fd >= 0);
 
     // set socket options
@@ -118,7 +114,6 @@ void web_server::deal_listen(int fd) {
 }
 
 void web_server::deal_read(int fd) {
-    check_user_exist(fd);
     std::shared_ptr<http_session> session = users_[fd];
     if(session->read_buf()) {
         threadpool_->submit(std::bind(&http_session::process, session.get()));
@@ -131,7 +126,6 @@ void web_server::deal_read(int fd) {
 }
 
 void web_server::deal_write(int fd) {
-    check_user_exist(fd);
     std::shared_ptr<http_session> session = users_[fd];
     if(session->write_buf()) {
         if(max_rdwd_idle_time > 0) { 

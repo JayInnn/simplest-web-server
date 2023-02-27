@@ -4,7 +4,16 @@
 #include <sys/socket.h>
 
 http_session::http_session(int fd_, uint32_t event, std::shared_ptr<epoller>& epl): 
-    fd(fd_), conn_event(event), epler_(epl) {}
+    fd(fd_), conn_event(event), epler_(epl) {
+        m_read_idx = 0;
+        m_checked_idx = 0;
+        m_start_line = 0;
+        iov_cnt = 0;
+        bytes_to_send = 0;
+        bytes_have_send = 0;
+        m_check_state = CHECK_STATE_REQUESTLINE;
+        memset(m_read_buf, '\0', READ_BUFFER_SIZE);
+    }
 
 
 bool http_session::read_buf() {
@@ -65,6 +74,7 @@ bool http_session::write_buf() {
 
         if (bytes_to_send <= 0) {
             if(request.get_keepalive()) {
+                reset_for_keepalive();
                 epler_->mod_fd(fd, conn_event | EPOLLIN);
                 return true;
             } else {
@@ -109,8 +119,9 @@ void http_session::process() {
 
 
 void http_session::process_read_buf() {
-    while (m_check_state != CHECK_STATE_FINISH && m_check_state != CHECK_STATE_ERROR && parse_line()) {
-        std::string text(m_read_buf, m_start_line);
+    while (m_check_state != CHECK_STATE_FINISH && m_check_state != CHECK_STATE_ERROR) {
+        parse_line();
+        std::string text(m_read_buf + m_start_line);
         LOG_INFO("fd: %d, process_read buffer: %s", fd, text.c_str());
         m_start_line = m_checked_idx;
         switch (m_check_state) {
@@ -190,4 +201,18 @@ bool http_session::parse_headers(std::string& line) {
 bool http_session::parse_content(std::string& line) {
     request.set_request_body(line);
     LOG_DEBUG("fd: %d, request body:%s, len:%d", fd, line.c_str(), line.size());
+    return true;
+}
+
+void http_session::reset_for_keepalive() {
+    m_read_idx = 0;
+    m_checked_idx = 0;
+    m_start_line = 0;
+    iov_cnt = 0;
+    bytes_to_send = 0;
+    bytes_have_send = 0;
+    m_check_state = CHECK_STATE_REQUESTLINE;
+    memset(m_read_buf, '\0', READ_BUFFER_SIZE);
+
+    response.reset_for_keepalive();
 }

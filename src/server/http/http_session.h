@@ -8,7 +8,7 @@
 #include "../epoll/epoller.h"
 
 constexpr int READ_BUFFER_SIZE  = 20480;
-constexpr int WRITE_BUFFER_SIZE = 1024;
+constexpr int WRITE_BUFFER_SIZE = 10240;
 
 class http_session {
 public: 
@@ -37,6 +37,7 @@ private:
     bool parse_request_line(std::string&);
     bool parse_headers(std::string&);
     bool parse_content(std::string&);
+    void reset_for_keepalive();
 
 private:
     int fd;

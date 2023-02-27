@@ -47,7 +47,7 @@ void http_response::set_error_info() {
 
 void http_response::set_finish_info(std::string path, bool keepalive) {
     /* 判断请求的资源文件 */
-    if(stat((rsp_resource_path + rsp_path).data(), &m_file_stat) < 0 || S_ISDIR(m_file_stat.st_mode)) {
+    if(stat((rsp_resource_path + path).data(), &m_file_stat) < 0 || S_ISDIR(m_file_stat.st_mode)) {
         rsp_code = 404;
     }
     else if(!(m_file_stat.st_mode & S_IROTH)) {
@@ -119,6 +119,16 @@ char* http_response::get_m_file() {
 
 size_t http_response::get_file_len() const {
     return m_file_stat.st_size;
+}
+
+
+void http_response::reset_for_keepalive() {
+    rsp_code = -1;
+    rsp_keepalive = false;
+    if(m_file) {
+        munmap(m_file, m_file_stat.st_size);
+        m_file = nullptr;
+    }
 }
 
 /**

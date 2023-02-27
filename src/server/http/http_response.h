@@ -28,6 +28,7 @@ public:
     std::string build_response_body();
     char*  get_m_file();
     size_t get_file_len() const;
+    void reset_for_keepalive();
 
 
 private:
@@ -42,7 +43,7 @@ private:
     bool rsp_keepalive;
 
     std::string rsp_path;
-    std::string rsp_resource_path = "./resource/";
+    std::string rsp_resource_path = "/opt/simplest-web-server/src/server/http/resource";
 
     char* m_file;
     struct stat m_file_stat;

@@ -35,6 +35,7 @@ public:
     void set_request_body(std::string body);
     std::string get_path() const;
     bool get_keepalive() const;
+    HTTP_METHOD get_method() const;
 
 
 private:

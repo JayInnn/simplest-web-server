@@ -17,6 +17,7 @@ void http_request::set_request_line(std::string method, std::string path, std::s
         req_method = POST;
     }
     req_version = version;
+    req_path = path;
     if(path == "/") {
         req_path = "/index.html"; 
     } else {
@@ -61,6 +62,10 @@ bool http_request::get_keepalive() const {
         return req_header.find("Connection")->second == "keep-alive" && req_version == "1.1";
     }
     return false;
+}
+
+http_request::HTTP_METHOD http_request::get_method() const {
+    return req_method;
 }
 
 
